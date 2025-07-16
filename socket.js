@@ -264,8 +264,8 @@ function listen(io) {
         };
       }
       
-      if(!ballSpeedUpInterval[room]){
-        ballSpeedUpInterval[room] = null;
+      if(!ballSpeedUpIntervals[room]){
+        ballSpeedUpIntervals[room] = null;
       }
 
       if(!ballSpeedUpTimeouts[room]){
@@ -288,8 +288,8 @@ function listen(io) {
 
     socket.on('leaveRoom', (currentRoom) => {
       socket.leave(currentRoom);
-      if (ballSpeedUpInterval[currentRoom]) clearInterval(ballSpeedUpInterval[currentRoom]);
-      ballSpeedUpInterval[currentRoom] = null;
+      if (ballSpeedUpIntervals[currentRoom]) clearInterval(ballSpeedUpIntervals[currentRoom]);
+      ballSpeedUpIntervals[currentRoom] = null;
 
 
       if (currentRoom && roomPlayers[currentRoom]) {
@@ -354,7 +354,7 @@ function listen(io) {
               pongNamespace.in(room).emit('gameState', gameStates[room]);
             }, 1000 / 60); // 60 FPS
 
-            ballSpeedUpInterval[room] = setInterval(() => {
+            ballSpeedUpIntervals[room] = setInterval(() => {
               speedUpBall(room);
             }, 10000);
           }
@@ -453,8 +453,8 @@ function listen(io) {
         else pongNamespace.in(room).emit('roomInfo', roomPlayers[room]);
       }
       
-      if (ballSpeedUpInterval[room]) clearInterval(ballSpeedUpInterval[room]);
-      ballSpeedUpInterval[room] = null;
+      if (ballSpeedUpIntervals[room]) clearInterval(ballSpeedUpIntervals[room]);
+      ballSpeedUpIntervals[room] = null;
 
       if (room && roomReadyStatus[room]) {
         delete roomReadyStatus[room][socket.id];
