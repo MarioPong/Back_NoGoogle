@@ -274,6 +274,22 @@ app.get("/api/user/logout", auth, async (req, res) => {
   }
 })
 
+app.get("/api/top10", async (req, res) => {
+  try {
+    const topPlayers = await User.aggregate([
+      { $sort: { score: -1 } },
+      { $limit: 10 }
+    ]);
+
+    const nicknameList = topPlayers.map(player => player.name);
+
+    res.status(200).json({ topPlayers: nicknameList });
+  } catch (err) {
+    console.error('Error fetching top players:', err);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+})
+
 app.get("/api/user/auth", auth, (req, res) => {
   const {
     _id,
