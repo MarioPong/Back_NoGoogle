@@ -3,6 +3,7 @@ const gameStates = {};
 const gameIntervals = {};
 const roomPlayers = {};
 const ballSpeedUpTimeouts = {};
+const ballSpeedUpIntervals = {};
 
 function listen(io) {
   const pongNamespace = io.of('/pong');
@@ -248,7 +249,6 @@ function listen(io) {
           paddleHeight: [75, 75],      // 각 플레이어별 패들 높이
           paddleSpeed: [8, 8],         // 각 플레이어별 패들 이동 속도
           pendingBallSpeedUp: [false, false],
-          ballSpeedUpInterval: null,
           ballX: 350,
           ballY: 250,
           ballRadius: 10,
@@ -262,6 +262,10 @@ function listen(io) {
           p1_character: "",
           p2_character: ""
         };
+      }
+      
+      if(!ballSpeedUpInterval[room]){
+        ballSpeedUpInterval[room] = null;
       }
 
       if(!ballSpeedUpTimeouts[room]){
@@ -284,8 +288,8 @@ function listen(io) {
 
     socket.on('leaveRoom', (currentRoom) => {
       socket.leave(currentRoom);
-      if (state.ballSpeedUpInterval) clearInterval(state.ballSpeedUpInterval);
-      state.ballSpeedUpInterval = null;
+      if (ballSpeedUpInterval[currentRoom]) clearInterval(ballSpeedUpInterval[currentRoom]);
+      ballSpeedUpInterval[currentRoom] = null;
 
 
       if (currentRoom && roomPlayers[currentRoom]) {
@@ -350,7 +354,7 @@ function listen(io) {
               pongNamespace.in(room).emit('gameState', gameStates[room]);
             }, 1000 / 60); // 60 FPS
 
-            gameStates[room].ballSpeedUpInterval = setInterval(() => {
+            ballSpeedUpInterval[room] = setInterval(() => {
               speedUpBall(room);
             }, 10000);
           }
@@ -449,6 +453,9 @@ function listen(io) {
         else pongNamespace.in(room).emit('roomInfo', roomPlayers[room]);
       }
       
+      if (ballSpeedUpInterval[room]) clearInterval(ballSpeedUpInterval[room]);
+      ballSpeedUpInterval[room] = null;
+
       if (room && roomReadyStatus[room]) {
         delete roomReadyStatus[room][socket.id];
         if (Object.keys(roomReadyStatus[room]).length === 0) {
