@@ -350,7 +350,7 @@ function listen(io) {
               pongNamespace.in(room).emit('gameState', gameStates[room]);
             }, 1000 / 60); // 60 FPS
 
-            state.ballSpeedUpInterval = setInterval(() => {
+            gameStates[room].ballSpeedUpInterval = setInterval(() => {
               speedUpBall(room);
             }, 10000);
           }
